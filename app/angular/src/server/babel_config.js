@@ -1,10 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import JSON5 from 'json5';
+import { logger } from '@storybook/node-logger';
 import defaultConfig from './config/babel';
-
-// avoid ESLint errors
-const logger = console;
 
 function removeReactHmre(presets) {
   const index = presets.indexOf('react-hmre');
@@ -65,12 +63,5 @@ export default function(configDir) {
     }
   }
 
-  const finalConfig = babelConfig || defaultConfig;
-  // Ensure plugins are defined or fallback to an array to avoid empty values.
-  const babelConfigPlugins = finalConfig.plugins || [];
-  // If `babelConfigPlugins` is not an `Array`, calling `concat` will inject it
-  // as a single value, if it is an `Array` it will be spreaded.
-  finalConfig.plugins = [].concat(babelConfigPlugins);
-
-  return finalConfig;
+  return babelConfig || defaultConfig;
 }

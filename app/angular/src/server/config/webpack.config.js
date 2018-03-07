@@ -1,8 +1,11 @@
 import path from 'path';
 import webpack from 'webpack';
+import Dotenv from 'dotenv-webpack';
+import InterpolateHtmlPlugin from 'react-dev-utils/InterpolateHtmlPlugin';
+import WatchMissingNodeModulesPlugin from 'react-dev-utils/WatchMissingNodeModulesPlugin';
 import CaseSensitivePathsPlugin from 'case-sensitive-paths-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import WatchMissingNodeModulesPlugin from './WatchMissingNodeModulesPlugin';
+import { managerPath } from '@storybook/core/server';
 
 import { includePaths, excludePaths, nodeModulesPaths, loadEnv, nodePaths } from './utils';
 import babelLoaderConfig from './babel';
@@ -13,7 +16,7 @@ export default function(configDir) {
   const config = {
     devtool: 'cheap-module-source-map',
     entry: {
-      manager: [require.resolve('./polyfills'), require.resolve('../../client/manager')],
+      manager: [require.resolve('./polyfills'), managerPath],
       preview: [
         require.resolve('./polyfills'),
         require.resolve('./globals'),
@@ -26,6 +29,7 @@ export default function(configDir) {
       publicPath: '/',
     },
     plugins: [
+      new InterpolateHtmlPlugin(process.env),
       new HtmlWebpackPlugin({
         filename: 'index.html',
         chunks: ['manager'],
@@ -52,6 +56,7 @@ export default function(configDir) {
         /angular(\\|\/)core(\\|\/)(@angular|esm5)/,
         path.resolve(__dirname, '../src')
       ),
+      new Dotenv({ silent: true }),
     ],
     module: {
       rules: [
@@ -74,7 +79,7 @@ export default function(configDir) {
         {
           test: /\.html$/,
           loader: 'raw-loader',
-          exclude: /\.async\.css$/,
+          exclude: /\.async\.html$/,
         },
         {
           test: /\.scss$/,
@@ -84,10 +89,10 @@ export default function(configDir) {
           test: /\.md$/,
           use: [
             {
-              loader: 'html-loader',
+              loader: require.resolve('html-loader'),
             },
             {
-              loader: 'markdown-loader',
+              loader: require.resolve('markdown-loader'),
             },
           ],
         },
